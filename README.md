@@ -1,7 +1,6 @@
 # Blackhole
 
 ## Overview
----
 **blackhole**, UDP Nonblock Log Aggregator Server  
 ## Requirements
 - >= Ruby 1.9.0
