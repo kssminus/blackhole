@@ -1,0 +1,86 @@
+#!/usr/bin/env ruby
+# encoding: utf-8
+
+$LOAD_PATH.unshift File.expand_path(File.dirname(__FILE__) + '/../lib')
+
+require 'optparse'
+require 'hole'
+require 'runner'
+require 'yaml'
+
+
+options = {}
+
+parser = OptionParser.new do |op|
+  op.banner = "Usage: Blackhole [options]"
+
+  op.separator "== Blackhole =="
+  op.separator ""
+  op.separator "Starting Blackhole"
+  op.separator "================================================================================="
+  op.separator "Options:"
+
+  ##
+  ## Daemonization / Logging options
+  ##
+  op.on("--pidfile PATH", "DO YOU WANT ME TO WRITE A PIDFILE SOMEWHERE FOR U?") do |pid_file|
+    options[:pid_file] = pid_file
+  end
+  
+  op.on("--logfile PATH", "I'LL POOP OUT LOGS HERE FOR U") do |log_file|
+    options[:log_file] = log_file
+  end
+  
+  op.on("-v", "--verbosity LEVEL", "HOW MUCH POOP DO U WANT IN UR LOGS? [LEVEL=0:errors,1:some,2:lots of poop]") do |verbosity|
+    options[:verbosity] = verbosity.to_i
+  end
+  
+  op.on("-K", "--kill", "SHUT DOWN Blackhole") do
+    options[:kill] = true
+  end
+ 
+  # Socket to Tug
+  op.on("-H", "--host HOST", "Blackhole will be place this Network Interface") do |host|
+    options[:host] = host
+  end
+  
+  op.on("-P", "--port PORT", "Blackhole pull log from this hole") do |port|
+    options[:port] = port.to_i
+  end
+  
+  ##
+  ## Mongo
+  ##
+  op.on("--mongodb DATABASE", "STORE LOGS IN THIS DB") do |mongo_db|
+    options[:mongo_db] = mongo_db
+  end
+  
+  # NOTE: this option can be given multiple times for a replica set
+  op.on("--mongohost HOSTPORT", "STORE LOGS IN THIS MONGO [eg, localhost or localhost:27017]") do |mongo_hostport|
+    options[:mongo_hostports] ||= []
+    options[:mongo_hostports] << mongo_hostport
+  end
+
+  op.on("-h", "--help", "WANNA LEARN MORE?") do
+    puts op
+    exit
+  end
+
+  op.separator ""
+end
+
+parser.parse!
+
+cur_dir  = Dir.pwd
+
+options[:log_file]        ||= "#{cur_dir}/blackhole.log"
+options[:pid_file]        ||= "#{cur_dir}/blackhole.pid"
+options[:verbosity]       ||= 2
+options[:host]            ||= "localhost"
+options[:port]            ||= 8889
+options[:mongo_db_name]   ||= "blackhole" 
+options[:mongo_hostport]  ||= []
+options[:mongo_hostport]  << "localhost:27017"
+
+p "blackhole options : #{options.inspect}"
+Blackhole::Runner.new(options).run!
