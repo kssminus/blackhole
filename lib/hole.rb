@@ -129,10 +129,9 @@ module Blackhole
 
         self.mongo.collection(collection_name).insert(temp_logs)
         
-        self.logs.delete_if { |log| temp_logs.include?(log) }
       end
 
-      Blackhole.logger.info "Saved Steps : #{temp_steps.inspect}" 
+      Blackhole.logger.info "Saved logs : #{temp_logs}" 
 
       self.mongo_flushes += 1
     end
