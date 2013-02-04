@@ -31,3 +31,6 @@
     $ gem install remote_syslog
     $ remote_syslog -d [blackhole_host] -p [blackhole_port] [logfile_path]
 
+## ToDo
+- delete old log automatically ( by config?)
+- make it as a gem blackhole
