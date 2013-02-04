@@ -82,14 +82,16 @@ module Blackhole
     
     def store!(data)
       if /(?<seq>^<\d+>)(?<date>.{15})\s(?<hostname>[\w-]+)\s(?<filename>[^:]+):\s(?<log>.+)/ =~ data
-        packet = {}
-        packet[:hostname] = hostname
-        packet[:filename] = filename
-        self.info << packet
-        packet[:date] = date
-        packet[:log] = log
-        packet[:time] = Time.now.to_i
-        self.logs << packet
+        unless log == ""
+          packet = {}
+          packet[:hostname] = hostname
+          packet[:filename] = filename
+          self.info << packet
+          packet[:date] = date
+          packet[:log] = log
+          packet[:time] = Time.now.to_i
+          self.logs << packet
+        end
       end
 
       self.udp_packets_received += 1
@@ -97,15 +99,6 @@ module Blackhole
     
     def drain!
 
-      # make two collections 
-      # one for the logs
-      # and the other for the collection dd
-      # "mycollection:step_id": {
-      #   t:  23423433,
-      #   ms: 6,
-      #   cs: 1
-      # }
-      #몽고에 저장하는 도중에 들어오는 녀석들 때문에..
       temp_logs = self.logs.clone
       self.logs = []
       temp_info = self.info.clone
@@ -117,7 +110,7 @@ module Blackhole
         temp_info.each do |info|
           info_tmp = {}
           info_tmp[:host] = info[:hostname].to_s
-          info_tmp[:file] = info[:file].to_s
+          info_tmp[:filename] = info[:filename].to_s
           info_tmp[:port] = self.port
           self.mongo.collection(collection_name).update(info_tmp, info_tmp, { upsert: true })
         end
