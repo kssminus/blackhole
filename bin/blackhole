@@ -48,19 +48,6 @@ parser = OptionParser.new do |op|
     options[:port] = port.to_i
   end
   
-  ##
-  ## Mongo
-  ##
-  op.on("--mongodb DATABASE", "STORE LOGS IN THIS DB") do |mongo_db|
-    options[:mongo_db] = mongo_db
-  end
-  
-  # NOTE: this option can be given multiple times for a replica set
-  op.on("--mongohost HOSTPORT", "STORE LOGS IN THIS MONGO [eg, localhost or localhost:27017]") do |mongo_hostport|
-    options[:mongo_hostports] ||= []
-    options[:mongo_hostports] << mongo_hostport
-  end
-
   op.on("-h", "--help", "WANNA LEARN MORE?") do
     puts op
     exit
@@ -78,9 +65,6 @@ options[:pid_file]        ||= "#{cur_dir}/blackhole.pid"
 options[:verbosity]       ||= 2
 options[:host]            ||= "localhost"
 options[:port]            ||= 8889
-options[:mongo_db_name]   ||= "blackhole" 
-options[:mongo_hostport]  ||= []
-options[:mongo_hostport]  << "localhost:27017"
 
 p "blackhole options : #{options.inspect}"
 Blackhole::Runner.new(options).run!
