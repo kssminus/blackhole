@@ -7,7 +7,7 @@ module Blackhole
     attr_accessor :hole
   
     def receive_data(data)
-      Blackhole.logger.debug "UDP packet: '#{data}'"
+      Blackhole.logger.debug "UDP packet: '#{data.to_s.force_encoding('cp949')}'"
       # store to memory
       hole.store!(data)
     end
@@ -61,6 +61,7 @@ module Blackhole
         packet[:date] = date
         packet[:log] = log
         packet[:time] = Time.now.to_i
+        #Blackhole.logger.info data
         self.logs << packet
       end
 
@@ -72,8 +73,8 @@ module Blackhole
       temp_logs = self.logs.clone
       self.logs = []
       
-      temp_log.each do |log|
-        Blackhole.logger.info "#{log}" 
+      temp_logs.each do |log|
+        #Blackhole.logger.info "#{log}" 
       end
     end
     
